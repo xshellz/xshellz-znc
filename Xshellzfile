@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+
+# ZNC provision script, written by StephenS / contact at admin [at] xshellz.com
+set -e
+set -u
+
+_author="StephenS / stefan [at] xshellz.com"
+_package="ZNC"
+_version="1.6.1"
+
+echo "Running provision for package $_package version: $_version by $_author"
+
+file="xShellzZNC"$(date -u +%s)
+
+re='^[0-9]+$'
+if ! [[ $zncport =~ $re ]] ; then
+ echo "ZNC Port must be a number! ABORTING"
+ exit
+fi
+
+if ! [[ $ircport =~ $re ]] ; then
+ echo "ZNC Port must be a number! ABORTING"
+ exit
+fi
+
+if dpkg -s znc 1>/dev/null 2>/dev/null; then
+ echo "ZNC installed globally, proceeding..."
+else
+ echo "ZNC should be installed locally, but this isn't implemented yet. ABORTING"
+ exit
+fi
+
+if lsof -Pi :$zncport -sTCP:LISTEN -t >/dev/null ; then
+ echo "Choose different port!"
+ exit
+else
+ echo "not running"
+fi
+
+zncloc=$(which znc)
+
+/usr/bin/expect - <<-EOF
+spawn $zncloc -d $HOME/$file --makeconf
+set force_conservative 0
+set timeout 1
+expect "*What port would you like ZNC to listen on?*"
+send "$zncport\r"
+expect "Listen using SSL (yes/no) \[no\]:"
+send "no\r"
+expect "Listen using both IPv4 and IPv6 (yes/no) \[yes\]:"
+send "no\r"
+expect "*Load global module <partyline>?*"
+send "no\r"
+expect "*Load global module <webadmin>?*"
+send "yes\r"
+expect "Username (alphanumeric):"
+send "$username\r"
+expect "Enter password:"
+send "$password\r"
+expect "Confirm password:"
+send "$password\r"
+expect "Would you like this user to be an admin? (yes/no) \[yes\]:"
+send "\r"
+expect "Nick \[$username\]:"
+send "\r"
+expect "Alt nick \[$username\_\]:"
+send "\r"
+expect "Ident \[$username\]:"
+send "\r"
+expect "Real name \[Got ZNC?\]:"
+send "$realname Powered by www.xShellz.com/package/StephenS/znc\r"
+expect "Bind host (optional):"
+send "\r"
+expect "Number of lines to buffer per channel \[50\]:"
+send "\r"
+expect "Would you like to clear channel buffers after replay? (yes/no) \[yes\]:"
+send "\r"
+expect "Default channel modes \[+stn\]:"
+send "\r"
+expect "Load module <chansaver>? (yes/no) \[no\]:"
+send "\r"
+expect "Load module <controlpanel>? (yes/no) \[no\]:"
+send "\r"
+expect "Load module <perform>? (yes/no) \[no\]:"
+send "\r"
+expect "Load module <webadmin>? (yes/no) \[no\]:"
+send "yes\r"
+expect "Would you like to set up a network? (yes/no) \[no\]:"
+send "yes\r"
+expect "Network (e.g. \`freenode' or \`efnet'):"
+send "someNet\r"
+expect "Load module <chansaver>? (yes/no) \[no\]:"
+send "\r"
+expect "Load module <keepnick>? (yes/no) \[no\]:"
+send "\r"
+expect "Load module <kickrejoin>? (yes/no) \[no\]:"
+send "\r"
+expect "Load module <nickserv>? (yes/no) \[no\]:"
+send "\r"
+expect "Load module <perform>? (yes/no) \[no\]:"
+send "\r"
+expect "Load module <simple_away>? (yes/no) \[no\]:"
+send "\r"
+expect "IRC server (host only):"
+send "$ircnetwork\r"
+expect "\[$ircnetwork\] Port (1 to 65535) \[6667\]:"
+send "$ircport\r"
+expect "\[$ircnetwork\] Password (probably empty):"
+send "\r"
+expect "Does this server use SSL? (yes/no) \[no\]:"
+send "\r"
+expect "Would you like to add another server for this IRC network? (yes/no) \[no\]:"
+send "\r"
+expect "Would you like to add a channel for ZNC to automatically join? (yes/no) \[yes\]:"
+send "\r"
+expect "Channel name:"
+send "$initchannel\r"
+expect "Would you like to add another channel? (yes/no) \[no\]:"
+send "\r"
+expect "Would you like to set up another network? (yes/no) \[no\]:"
+send "\r"
+expect "Would you like to set up another user? (yes/no) \[no\]:"
+send "\r"
+expect "Launch ZNC now? (yes/no) \[yes\]:"
+send "\r"
+send "\r"
+send "\r"
+send "\r"
+send "\r"
+expect eof
+EOF
+
+znc -d $file
+
+if grep -q "znc -d $file" <<< $(ps x); then
+ echo "We just checked, and ZNC is running, congratulations!"
+else
+ echo "Ehh, something went wrong with your ZNC. Contact package maintainer "$_author
+fi
+
