@@ -1,0 +1,60 @@
+[
+ {
+ "placeholder":"ZNC Username and IRC Nick",
+ "format":"string",
+ "type": "text",
+ "isMandatory": "true",
+ "name": "username"
+ },
+ {
+ "placeholder":"ZNC Password",
+ "format":"string",
+ "type": "password",
+ "isMandatory": "true",
+ "name": "password"
+ },
+ {
+ "placeholder":"ZNC Port",
+ "format":"string",
+ "type": "text",
+ "isMandatory": "true",
+ "name" : "zncport"
+ },
+ {
+ "placeholder":"ZNC Realname",
+ "format":"string",
+ "type": "text",
+ "isMandatory": "true",
+ "name": "realname"
+ },
+ {
+ "placeholder":"IRC network",
+ "format":"string",
+ "type": "text",
+ "isMandatory": "true",
+ "name" : "ircnetwork"
+ },
+ {
+ "placeholder":"IRC Port",
+ "format":"string",
+ "type": "text",
+ "isMandatory": "true",
+ "name" : "ircport"
+ },
+ {
+ "placeholder":"AutoJoin IRC Channel, for example: #xShellz",
+ "format":"string",
+ "type": "text",
+ "isMandatory": "true",
+ "name" : "initchannel"
+ },
+ {
+ "placeholder":"Create ZNC bouncer",
+ "format":"button",
+ "type": "submit",
+ "isMandatory": "true",
+ "name" : "submit",
+ "value": "Spin Up ZNC"
+ }
+
+]
